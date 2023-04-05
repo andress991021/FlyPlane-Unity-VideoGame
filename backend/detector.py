@@ -20,9 +20,13 @@ class HandDetector():
                 
         return frame
                 
-    def find_main_keypoint(self,frame):
+    def find_main_keypoint(self,frame,screen_coordinates=True):
         if not (self.detection.multi_hand_landmarks):
             return None
-        keypoint_vertex = [self.detection[index] for index in self.keypoints_index]
-        print(keypoint_vertex)
-        return 1
+        hand_landmark = self.detection.multi_hand_landmarks[0]
+        
+        vertex = hand_landmark.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+        if(screen_coordinates):
+            height,width,_ = frame.shape 
+            return dict(x = vertex.x* width, y =vertex.y* height)
+        return dict(x = vertex.x, y =vertex.y)
