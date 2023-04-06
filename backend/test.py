@@ -56,10 +56,23 @@ async def get():
 
 async def send_date():
     while True:
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        for connection in connections:
-            await connection.send_text(now)
-        await asyncio.sleep(1)
+        ret, frame = cap.read()
+        frame = cv2.flip(frame,1)
+        
+        frame = hand_detector.find_hand(frame)   
+        vector = hand_detector.find_main_keypoint(frame,False) 
+        
+        txt ='NONE'
+        if vector: 
+            dynamics.add_vector(vector)
+            vx,vy =dynamics.calculate_velocity()
+            txt = '{:.1f}'.format(vx)+" - "+'{:.1f}'.format(vy)
+        
+        if txt != 'NONE':
+            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            for connection in connections:
+                await connection.send_text(now  )
+        await asyncio.sleep(0.01)
 
 # Define a websocket endpoint that adds new connections to the list
 @app.websocket("/ws")

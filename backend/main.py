@@ -19,7 +19,8 @@ while(True):
     if vector: 
         dynamics.add_vector(vector)
         vx,vy =dynamics.calculate_velocity()
-        print('{:.1f}'.format(vx),'{:.1f}'.format(vy))
+        output = '{:.1f}'.format(vx)+' , '+'{:.1f}'.format(vy)
+        #print('{:.1f}'.format(vx),'{:.1f}'.format(vy))
      
     cv2.imshow('mask',frame)
     if cv2.waitKey(1) & 0xFF == 27:
