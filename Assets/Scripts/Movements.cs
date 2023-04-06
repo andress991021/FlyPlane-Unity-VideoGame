@@ -9,7 +9,7 @@ public class Movements : MonoBehaviour
   
     public CharacterController controller;
     public float speed = 5f;
-    public float xSpeed = 1f;
+    //public float xSpeed = 1f;
     public GameObject emptyObject;
 
     // Update is called once per frame
@@ -23,8 +23,8 @@ public class Movements : MonoBehaviour
         float rotatez = 0f;
 
         float rotatey = 90f;
-        float rotationIncrement = Time.time * 5f;
-        rotatey += x * rotationIncrement;
+        //float rotationIncrement = Time.time * 5f;
+        //rotatey += x * rotationIncrement;
 
 
 
@@ -33,8 +33,8 @@ public class Movements : MonoBehaviour
         controller.Move(movement *speed* Time.deltaTime);
 
         //Fixed Rotate  
-        emptyObject.transform.eulerAngles = new Vector3(0, rotatey, rotatez);
-        transform.eulerAngles = new Vector3(0, rotatey, rotatez);
+        //emptyObject.transform.eulerAngles = new Vector3(0, rotatey, rotatez);
+        //transform.eulerAngles = new Vector3(0, rotatey, rotatez);
      
     }
 }
