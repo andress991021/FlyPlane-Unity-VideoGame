@@ -2,12 +2,17 @@ from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 import asyncio
 import datetime
+import cv2
+from detector import HandDetector     
+from dynamics import Dynamics
 
 app = FastAPI()
 
 # Create a list to store all active websocket connections
 connections = []
-
+cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)   
+hand_detector = HandDetector()
+dynamics = Dynamics()
 
 html = """
 <!DOCTYPE html>
@@ -54,7 +59,7 @@ async def send_date():
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for connection in connections:
             await connection.send_text(now)
-        await asyncio.sleep(10)
+        await asyncio.sleep(1)
 
 # Define a websocket endpoint that adds new connections to the list
 @app.websocket("/ws")
