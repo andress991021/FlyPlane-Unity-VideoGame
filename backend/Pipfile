@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 mediapipe = "*"
 opencv-python = "*"
+websockets = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+fastapi = "*"
 
 [dev-packages]
 
