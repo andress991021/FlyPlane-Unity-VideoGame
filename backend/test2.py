@@ -5,6 +5,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 import asyncio
 
+#pipenv run uvicorn test:app --reload
+
 app = FastAPI()
 
 cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)   
@@ -35,6 +37,9 @@ connections = []
 
 # Define a function to send the current velocity to all active connections
 async def send_velocity():
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    if not cap.isOpened():
+        raise Exception("Failed to open video capture device")
     while True:
         if len(connections) > 0:
             ret, frame = cap.read()
@@ -52,7 +57,7 @@ async def send_velocity():
                 for connection in connections:
                     await connection.send_text(output)
         
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.01)
 
 # Define a websocket endpoint that adds new connections to the list
 @app.websocket("/ws")
