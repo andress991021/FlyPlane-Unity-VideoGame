@@ -2,10 +2,12 @@
 
 import asyncio
 from websockets.server import serve
+import random
 
 async def echo(websocket):
     async for message in websocket:
-        await websocket.send(message)
+        msg = random.choice(["A", "B","C"])
+        await websocket.send(msg)
 
 async def main():
     async with serve(echo, "localhost", 8765):
