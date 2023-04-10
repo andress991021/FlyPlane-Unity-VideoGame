@@ -6,8 +6,9 @@ import random
 
 async def echo(websocket):
     async for message in websocket:
-        msg = random.choice(["A", "B","C"])
-        await websocket.send(msg)
+        print(message)
+        #msg = random.choice(["A", "B","C"])
+        #await websocket.send(msg)
 
 async def main():
     async with serve(echo, "localhost", 8765):
