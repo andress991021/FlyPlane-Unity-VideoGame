@@ -4,17 +4,21 @@ import asyncio
 from websockets.sync.client import connect
 import time
 import cv2
-from detector import HandDetector     
-from dynamics import Dynamics
+from computer_vision import HandDetector,Dynamics    
+from settings import settings
+
+host =  settings.host
+port = settings.port
+
 
 cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)   
 hand_detector = HandDetector()
 dynamics = Dynamics()
 
 def streaming():
-    with connect("ws://localhost:8765") as websocket:
+    with connect(f"ws://{host}:{port}") as websocket:
         #message = websocket.recv()  
-        for i in range(40):
+        for i in range(100):
             ret, frame = cap.read()
             frame = cv2.flip(frame,1)
             
@@ -33,7 +37,8 @@ def streaming():
             if cv2.waitKey(1) & 0xFF == 27:
                 break 
             
-            time.sleep(0.05)
+            #time.sleep(0.05)
+            time.sleep(0)
             
 
         cap.release()     
