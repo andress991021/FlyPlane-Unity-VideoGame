@@ -17,8 +17,7 @@ dynamics = Dynamics()
 
 def streaming():
     with connect(f"ws://{host}:{port}") as websocket:
-        #message = websocket.recv()  
-        for i in range(100):
+        for i in range(500):
             ret, frame = cap.read()
             frame = cv2.flip(frame,1)
             
@@ -37,7 +36,6 @@ def streaming():
             if cv2.waitKey(1) & 0xFF == 27:
                 break 
             
-            #time.sleep(0.05)
             time.sleep(0)
             
 

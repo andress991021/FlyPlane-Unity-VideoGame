@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
 import asyncio
-from websockets.server import serve
-from settings import settings
+import websockets
 
-async def echo(websocket):
-    async for message in websocket:
-        print(message)
-        #msg = random.choice(["A", "B","C"])
-        #await websocket.send(msg)
+async def redirect_time(websocket, path):
+    async with websockets.connect('ws://localhost:8766') as forward_websocket:
+        async for time in websocket:
+            print(f"Script B received time: {time}")
+            await forward_websocket.send(time)
 
-async def main():
-    async with serve(echo, settings.host, settings.port):
-        await asyncio.Future()  # run forever
+start_server = websockets.serve(redirect_time, 'localhost', 8765)
 
-asyncio.run(main())
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
