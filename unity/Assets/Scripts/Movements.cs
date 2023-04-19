@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Timeline;
+//using WebSocketSharp;
+using WebSocketSharp;
 
 public class Movements : MonoBehaviour
 {
@@ -11,14 +13,36 @@ public class Movements : MonoBehaviour
     public float speed = 20f;
     public GameObject emptyObject;
 
+    WebSocket ws;
+
+    void Start()
+    {
+        ws = new WebSocket("ws://localhost:8766");
+        ws.OnMessage += OnMessage;
+        ws.Connect();
+    }
+
+    void OnMessage(object sender, MessageEventArgs e)
+    {
+        Debug.Log("Received time: " + e.Data);
+    }
+
+    void OnDestroy()
+    {
+        ws.Close();
+    }
+
+
     // Update is called once per frame
     void Update()
     {
+
+
         //Initial Variable
         float x = Input.GetAxis("Horizontal")*speed ;
-        float z = 8f;
+        float z = 4f;
         float y = Input.GetAxis("Vertical")*speed ;
-
+        //WebSocket
         
 
         //Movement

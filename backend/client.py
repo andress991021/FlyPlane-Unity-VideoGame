@@ -6,7 +6,7 @@ from computer_vision import HandDetector,Dynamics
 from settings import settings
 
 host =  settings.host
-port = settings.port
+port = settings.port_bridge
 
 
 cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)   
