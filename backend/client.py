@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-import asyncio
 from websockets.sync.client import connect
 import time
 import cv2

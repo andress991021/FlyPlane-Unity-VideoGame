@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-
 import asyncio
 import websockets
+from settings import settings
 
-async def redirect_time(websocket, path):
-    async with websockets.connect('ws://localhost:8766') as forward_websocket:
+
+async def handle_time(websocket, path):
+    async with websockets.connect(f'ws://{settings.host}:{settings.port_consumer}') as websocket2:
         async for time in websocket:
-            print(f"Script B received time: {time}")
-            await forward_websocket.send(time)
+            print(f'Received time from client: {time}')
+            await websocket2.send(time)
 
-start_server = websockets.serve(redirect_time, 'localhost', 8765)
-
-asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_until_complete(websockets.serve(handle_time, settings.host, settings.port_bridge))
 asyncio.get_event_loop().run_forever()
