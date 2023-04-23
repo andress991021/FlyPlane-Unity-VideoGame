@@ -14,7 +14,7 @@ hand_detector = HandDetector()
 dynamics = Dynamics()
 
 def streaming():
-    with connect(f"ws://{host}:{port}") as websocket:
+    with connect(f"ws://localhost:8000") as websocket:
         for i in range(500):
             ret, frame = cap.read()
             frame = cv2.flip(frame,1)
@@ -26,7 +26,7 @@ def streaming():
             if vector is not None:
                 
                 x = vector['x']
-                x_formatted = f'{x:.2f}'
+                x_formatted = f'{x:4.2f}'
                 print(x_formatted)
                 websocket.send(x_formatted)
             
