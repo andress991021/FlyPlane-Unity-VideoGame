@@ -5,6 +5,24 @@ using UnityEngine;
 using UnityEngine.Timeline;
 //using WebSocketSharp;
 using WebSocketSharp;
+using WebSocketSharp.Server;
+using System.Threading;
+public class TimeService : WebSocketBehavior
+{
+    public ManualResetEvent ClientConnectedEvent { get; set; }
+
+    protected override void OnOpen()
+    {
+        ClientConnectedEvent.Set();
+    }
+
+    protected override void OnMessage(MessageEventArgs e)
+    {
+        ClientConnectedEvent.WaitOne(); // Wait for client to connect
+        Debug.Log(e.Data);
+    }
+}
+
 
 public class Movements : MonoBehaviour
 {
@@ -13,23 +31,26 @@ public class Movements : MonoBehaviour
     public float speed = 20f;
     public GameObject emptyObject;
 
-    private WebSocket ws;
+    private WebSocketServer wssv;
+    private ManualResetEvent clientConnectedEvent = new ManualResetEvent(false);
+
 
     void Start()
     {
-        ws = new WebSocket("ws://localhost:8765");
-        ws.OnMessage += OnMessage;
-        ws.Connect();
+        wssv = new WebSocketServer("ws://localhost:8765");
+        wssv.AddWebSocketService<TimeService>("/time", () =>
+        {
+            var service = new TimeService();
+            service.ClientConnectedEvent = clientConnectedEvent;
+            return service;
+        });
+        wssv.Start();
     }
 
-    void OnMessage(object sender, MessageEventArgs e)
-    {
-        Debug.Log("Received time: " + e.Data);
-    }
 
     void OnDestroy()
     {
-        ws.Close();
+        wssv.Stop();
     }
 
 
