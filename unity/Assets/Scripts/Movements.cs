@@ -13,11 +13,11 @@ public class Movements : MonoBehaviour
     public float speed = 20f;
     public GameObject emptyObject;
 
-    WebSocket ws;
+    private WebSocket ws;
 
     void Start()
     {
-        ws = new WebSocket("ws://localhost:8766");
+        ws = new WebSocket("ws://localhost:8765");
         ws.OnMessage += OnMessage;
         ws.Connect();
     }
