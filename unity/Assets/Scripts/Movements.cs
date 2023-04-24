@@ -10,7 +10,8 @@ using System.Threading;
 public class TimeService : WebSocketBehavior
 {
     public ManualResetEvent ClientConnectedEvent { get; set; }
-
+    public bool isConnection { get; set; } = false;
+    public int times = 0;
     protected override void OnOpen()
     {
         ClientConnectedEvent.Set();
@@ -19,7 +20,9 @@ public class TimeService : WebSocketBehavior
     protected override void OnMessage(MessageEventArgs e)
     {
         ClientConnectedEvent.WaitOne(); // Wait for client to connect
-        Debug.Log(e.Data);
+        isConnection = true;       
+        Debug.Log(e.Data+":"+ times);
+        times++;
     }
 }
 
@@ -57,6 +60,7 @@ public class Movements : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(wssv.WebSocketServices);
 
 
         //Initial Variable
