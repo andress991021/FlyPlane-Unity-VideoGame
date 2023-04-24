@@ -1356,8 +1356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 87012058}
-  speed: 5
-  xSpeed: 1
+  speed: 20
   emptyObject: {fileID: 1284056936}
 --- !u!4 &87012060
 Transform:
