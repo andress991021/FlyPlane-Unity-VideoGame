@@ -2,7 +2,7 @@
 from websockets.sync.client import connect
 import time
 import cv2
-from computer_vision import HandDetector   
+from computer_vision import HandDetector,Dynamics  
 from settings import settings
 
 # Open the video capture using the camera
@@ -10,12 +10,13 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Initialize the hand detection class
 hand_detector = HandDetector()
+dynamics =  Dynamics()
 
 # Continuously detect the hand position and send it through websockets
 def stream_hand_position():
     # Connect to websocket mediator
     with connect(f"ws://localhost:8000") as websocket:
-        for i in range(500):
+        for i in range(5000):
             # Capture the image
             ret, frame = cap.read()
             frame = cv2.flip(frame,1)
@@ -26,7 +27,9 @@ def stream_hand_position():
             
             # If a hand position is found, send it through websockets
             if main_keypoint is not None:
-                str_position = '{x:.4f},{y:.4f}'.format(**main_keypoint)
+                dynamics.add_vector(main_keypoint)
+                vx,vy = dynamics.calculate_velocity()
+                str_position = f'{vx:.4f},{vy:.4f}'
                 print(f'Sending hand position: {str_position}')
                 websocket.send(str_position)
             

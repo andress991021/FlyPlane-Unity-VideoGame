@@ -9,7 +9,7 @@ class Dynamics():
         self.time_old: datetime = None
         self.time_current: datetime = None
         
-    def add_vector(self,new_vector):
+    def add_vector(self,new_vector:Dict[str, float]):
         if self.is_empty_vectors():
             self.vector_current = new_vector
             self.time_current = datetime.now()
