@@ -12,6 +12,7 @@ using System.Globalization;
 public class Globals {
     public static string message = "";
     public static bool newDataReceived = false;
+    public static bool isInitialized = false;
 }
 
 public class TimeService : WebSocketBehavior
@@ -30,6 +31,7 @@ public class TimeService : WebSocketBehavior
         ClientConnectedEvent.WaitOne(); // Wait for client to connect
         Globals.message = e.Data;
         Globals.newDataReceived = true;
+        Globals.isInitialized = true;
         //Debug.Log(Globals.message + ":"+ times);
         times++;
     }
@@ -40,7 +42,9 @@ public class Movements : MonoBehaviour
 {
   
     public CharacterController controller;
-    public float speed = 20f;
+    public float vz = 5f;
+    float speedHand = 1.8f;
+    float thresold = 0.01f;
     public GameObject emptyObject;
 
     private WebSocketServer wssv;
@@ -69,24 +73,26 @@ public class Movements : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!Globals.isInitialized)
+        {
+            return;
+        }
 
-        float x = 0.0f;
-        float z = 3f;
-        float y = 0.0f;
-        float speedHand = 1.3f;
-        float thresold = 0.01f;
+        float vx = 0.0f;
+        float vy = 0.0f;
+        
         if (Globals.newDataReceived)
         {
             string message = Globals.message;
             string[] substrings = message.Split(',');
-            x = float.Parse(substrings[0], CultureInfo.InvariantCulture);
-            y = float.Parse(substrings[1], CultureInfo.InvariantCulture);
-            if (Mathf.Abs(x) < thresold) x = 0;
-            if (Mathf.Abs(y) < thresold) y = 0;
+            vx = float.Parse(substrings[0], CultureInfo.InvariantCulture);
+            vy = float.Parse(substrings[1], CultureInfo.InvariantCulture);
+            if (Mathf.Abs(vx) < thresold) vx = 0;
+            if (Mathf.Abs(vy) < thresold) vy = 0;
 
             Globals.newDataReceived = false;
         }
-        Vector3 movement = transform.right* speedHand * x - transform.up* speedHand * y + transform.forward * z * Time.deltaTime;
+        Vector3 movement = transform.right* speedHand * vx - transform.up* speedHand * vy + transform.forward * vz * Time.deltaTime;
         controller.Move(movement);
 
 
