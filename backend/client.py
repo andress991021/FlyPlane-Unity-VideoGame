@@ -13,7 +13,7 @@ hand_detector = HandDetector()
 dynamics =  Dynamics()
 
 # Continuously detect the hand position and send it through websockets
-def stream_hand_position():
+def realtime_hand_detection():
     # Connect to websocket mediator
     with connect(f"ws://localhost:8000") as websocket:
         for i in range(5000):
@@ -47,4 +47,4 @@ def stream_hand_position():
         cv2.destroyAllWindows()
 
 # Start streaming the hand position
-stream_hand_position()
+realtime_hand_detection()
