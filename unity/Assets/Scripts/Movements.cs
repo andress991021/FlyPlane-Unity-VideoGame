@@ -8,11 +8,19 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Threading;
 using System.Globalization;
-
 public class Globals {
     public static string message = "";
     public static bool newDataReceived = false;
     public static bool isInitialized = false;
+}
+
+[System.Serializable]
+public class MyData
+{
+    public float vx;
+    public float vy;
+    public float px;
+    public float py;
 }
 
 public class TimeService : WebSocketBehavior
@@ -84,16 +92,18 @@ public class Movements : MonoBehaviour
         if (Globals.newDataReceived)
         {
             string message = Globals.message;
-            string[] substrings = message.Split(',');
+            MyData data = JsonUtility.FromJson<MyData>(message);
+            Debug.Log(data.vx + " - " + data.vy + " -");
+            /*string[] substrings = message.Split(',');
             vx = float.Parse(substrings[0], CultureInfo.InvariantCulture);
             vy = float.Parse(substrings[1], CultureInfo.InvariantCulture);
             if (Mathf.Abs(vx) < thresold) vx = 0;
             if (Mathf.Abs(vy) < thresold) vy = 0;
 
-            Globals.newDataReceived = false;
+            Globals.newDataReceived = false;*/
         }
-        Vector3 movement = transform.right* speedHand * vx - transform.up* speedHand * vy + transform.forward * vz * Time.deltaTime;
-        controller.Move(movement);
+        /*Vector3 movement = transform.right* speedHand * vx - transform.up* speedHand * vy + transform.forward * vz * Time.deltaTime;
+        controller.Move(movement);*/
 
 
         //Initial Variable
