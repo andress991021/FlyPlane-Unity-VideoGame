@@ -4,6 +4,7 @@ import time
 import cv2
 from computer_vision import HandDetector,Dynamics  
 from settings import settings
+import json
 
 # Open the video capture using the camera
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)   
@@ -23,15 +24,21 @@ def realtime_hand_detection():
             
             # Detect the hand and its principal keypoints
             frame = hand_detector.find_hand(frame)   
-            main_keypoint = hand_detector.find_main_keypoint(frame, False) 
-            
+            hand_position = hand_detector.find_main_keypoint(frame, False) 
             # If a hand position is found, send it through websockets
-            if main_keypoint is not None:
-                dynamics.add_vector(main_keypoint)
+            if hand_position is not None:
+                #Calculate and destructuring position and velocity
+                dynamics.add_vector(hand_position)
+                px,py = hand_position
                 vx,vy = dynamics.calculate_velocity()
-                str_position = f'{vx:.4f},{vy:.4f}'
-                print(f'Sending hand position: {str_position}')
-                websocket.send(str_position)
+                
+                #Enconde message in json format
+                msg = dict(vx=vx,vy=vy,px=px,py=py)
+                encode_msg = json.dumps(msg)
+                
+                #Send message
+                print(f'Sending hand position: {encode_msg}')
+                websocket.send(encode_msg)
             
             # Show the hand detection mask
             cv2.imshow('Hand Detection Mask', frame)
