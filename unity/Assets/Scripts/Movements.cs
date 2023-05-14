@@ -42,10 +42,11 @@ public class Movements : MonoBehaviour
 {
   
     public CharacterController controller;
-    public float vz = 5f;
+    public float vz = 10f;
     float speedHand = 1.8f;
     float thresold = 0.01f;
     public GameObject emptyObject;
+   
 
     private WebSocketServer wssv;
     private ManualResetEvent clientConnectedEvent = new ManualResetEvent(false);
@@ -73,6 +74,28 @@ public class Movements : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        float x = Input.GetAxis("Horizontal") * vz;
+        float z = 15f;
+        float y = Input.GetAxis("Vertical") * vz;
+
+        //Initial Variable
+
+        //WebSocket
+
+        
+        //Movement
+        Vector3 movement = transform.right * x + transform.forward * z + transform.up * y;
+        controller.Move(movement * Time.deltaTime);
+
+        //Fixed Rotate  
+        //  emptyObject.transform.eulerAngles = new Vector3(0,0, 0);
+        //transform.eulerAngles = new Vector3(0, rotatey,0);
+    }
+
+
+    void handleDetection ()
+    {
         if (!Globals.isInitialized)
         {
             return;
@@ -80,7 +103,7 @@ public class Movements : MonoBehaviour
 
         float vx = 0.0f;
         float vy = 0.0f;
-        
+
         if (Globals.newDataReceived)
         {
             string message = Globals.message;
@@ -92,21 +115,8 @@ public class Movements : MonoBehaviour
 
             Globals.newDataReceived = false;
         }
-        Vector3 movement = transform.right* speedHand * vx - transform.up* speedHand * vy + transform.forward * vz * Time.deltaTime;
+        Vector3 movement = transform.right * speedHand * vx - transform.up * speedHand * vy + transform.forward * vz * Time.deltaTime;
         controller.Move(movement);
 
-
-        //Initial Variable
-
-        //WebSocket
-
-
-        //Movement
-        //Vector3 movement = transform.right * x + transform.forward * z + transform.up * y;
-        //controller.Move(movement * Time.deltaTime);
-
-        //Fixed Rotate  
-        //emptyObject.transform.eulerAngles = new Vector3(0, rotatey, rotatez);
-        //transform.eulerAngles = new Vector3(0, rotatey, rotatez);
     }
 }
