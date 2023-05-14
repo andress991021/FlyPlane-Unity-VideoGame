@@ -1,5 +1,7 @@
 import cv2
 import mediapipe as mp
+import numpy as np     
+     
      
 class HandDetector():
     def __init__(self):
@@ -28,5 +30,5 @@ class HandDetector():
         vertex = hand_landmark.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
         if(screen_coordinates):
             height,width,_ = frame.shape 
-            return dict(x = vertex.x* width, y =vertex.y* height)
-        return dict(x = vertex.x, y =vertex.y)
+            return np.array([vertex.x* width,vertex.y* height])
+        return np.array([vertex.x,vertex.y])

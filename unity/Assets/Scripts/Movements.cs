@@ -3,38 +3,62 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Timeline;
+using System.Globalization;
 
-public class Movements : MonoBehaviour
+
+
+
+
+public class Movements : MonoBehaviour, IEventListener
 {
-  
+    const float vz = 90f;
+    const float vhand = 1.8f;
+    float vhandThresold = 0.008f;
+    private DynamicsData lastDynamics = null;
+    bool isTrigger = false;
     public CharacterController controller;
-    public float speed = 5f;
-    public float xSpeed = 1f;
-    public GameObject emptyObject;
 
-    // Update is called once per frame
+    public void notify(DynamicsData dynamics)
+    {
+        lastDynamics = dynamics;
+        isTrigger = true;
+    }
+
+    void Start()
+    {
+        GlobalStorage.eventManager.suscribe(this);
+    }
+
+    void moveWithHand()
+    {
+        if (!isTrigger || lastDynamics == null) return;
+
+        float vx = lastDynamics.vx;
+        float vy = -lastDynamics.vy;
+        if (Mathf.Abs(vx) < vhandThresold) vx = 0;
+        if (Mathf.Abs(vy) < vhandThresold) vy = 0;
+        Debug.Log(vx + "  ,  " + vy);
+
+        //Vector3 movement = -transform.forward * vhand * vx - transform.up * vhand * vy + transform.right * vz * Time.deltaTime;
+        Vector3 movement = transform.right * vhand * vx + transform.up * vhand * vy + transform.forward * vz * Time.deltaTime;
+        controller.Move(movement);
+        isTrigger = false;
+    }
+
+    void moveWithKeyboard()
+    {
+        float x = Input.GetAxis("Horizontal") * vz;
+        float z = 8f;
+        float y = Input.GetAxis("Vertical") * vz;
+        Vector3 movement = transform.right * x + transform.forward * z + transform.up * y;
+        controller.Move(movement * Time.deltaTime);
+        //Move
+    }
+
+
     void Update()
     {
-        //Initial Variable
-        float x = Input.GetAxis("Horizontal") ;
-        float z = 2f;
-        float y = Input.GetAxis("Vertical") ;
-
-        float rotatez = 0f;
-
-        float rotatey = 90f;
-        float rotationIncrement = Time.time * 5f;
-        rotatey += x * rotationIncrement;
-
-
-
-        //Movement
-        Vector3 movement = transform.right * x + transform.forward * z + transform.up * y;
-        controller.Move(movement *speed* Time.deltaTime);
-
-        //Fixed Rotate  
-        emptyObject.transform.eulerAngles = new Vector3(0, rotatey, rotatez);
-        transform.eulerAngles = new Vector3(0, rotatey, rotatez);
-     
+        moveWithHand();//  
+        //moveWithKeyboard(); //Uncomment this for move the gameobject using the keyboards
     }
 }
