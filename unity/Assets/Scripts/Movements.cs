@@ -3,120 +3,62 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Timeline;
-//using WebSocketSharp;
-using WebSocketSharp;
-using WebSocketSharp.Server;
-using System.Threading;
 using System.Globalization;
 
-public class Globals {
-    public static string message = "";
-    public static bool newDataReceived = false;
-    public static bool isInitialized = false;
-}
 
-public class TimeService : WebSocketBehavior
+
+
+
+public class Movements : MonoBehaviour, IEventListener
 {
-    public ManualResetEvent ClientConnectedEvent { get; set; }
-    public bool isConnection { get; set; } = false;
-    public int times = 0;
-   
-    protected override void OnOpen()
-    {
-        ClientConnectedEvent.Set();
-    }
-
-    protected override void OnMessage(MessageEventArgs e)
-    {
-        ClientConnectedEvent.WaitOne(); // Wait for client to connect
-        Globals.message = e.Data;
-        Globals.newDataReceived = true;
-        Globals.isInitialized = true;
-        //Debug.Log(Globals.message + ":"+ times);
-        times++;
-    }
-}
-
-
-public class Movements : MonoBehaviour
-{
-  
+    const float vz = 90f;
+    const float vhand = 1.8f;
+    float vhandThresold = 0.008f;
+    private DynamicsData lastDynamics = null;
+    bool isTrigger = false;
     public CharacterController controller;
-    public float vz = 10f;
-    float speedHand = 1.8f;
-    float thresold = 0.01f;
-    public GameObject emptyObject;
-   
 
-    private WebSocketServer wssv;
-    private ManualResetEvent clientConnectedEvent = new ManualResetEvent(false);
-
+    public void notify(DynamicsData dynamics)
+    {
+        lastDynamics = dynamics;
+        isTrigger = true;
+    }
 
     void Start()
     {
-        wssv = new WebSocketServer("ws://localhost:8765");
-        wssv.AddWebSocketService<TimeService>("/time", () =>
-        {
-            var service = new TimeService();
-            service.ClientConnectedEvent = clientConnectedEvent;
-            return service;
-        });
-        wssv.Start();
+        GlobalStorage.eventManager.suscribe(this);
     }
 
-
-    void OnDestroy()
+    void moveWithHand()
     {
-        wssv.Stop();
+        if (!isTrigger || lastDynamics == null) return;
+
+        float vx = lastDynamics.vx;
+        float vy = -lastDynamics.vy;
+        if (Mathf.Abs(vx) < vhandThresold) vx = 0;
+        if (Mathf.Abs(vy) < vhandThresold) vy = 0;
+        Debug.Log(vx + "  ,  " + vy);
+
+        //Vector3 movement = -transform.forward * vhand * vx - transform.up * vhand * vy + transform.right * vz * Time.deltaTime;
+        Vector3 movement = transform.right * vhand * vx + transform.up * vhand * vy + transform.forward * vz * Time.deltaTime;
+        controller.Move(movement);
+        isTrigger = false;
     }
 
-
-    // Update is called once per frame
-    void Update()
+    void moveWithKeyboard()
     {
-
         float x = Input.GetAxis("Horizontal") * vz;
-        float z = 15f;
+        float z = 8f;
         float y = Input.GetAxis("Vertical") * vz;
-
-        //Initial Variable
-
-        //WebSocket
-
-        
-        //Movement
         Vector3 movement = transform.right * x + transform.forward * z + transform.up * y;
         controller.Move(movement * Time.deltaTime);
-
-        //Fixed Rotate  
-        //  emptyObject.transform.eulerAngles = new Vector3(0,0, 0);
-        //transform.eulerAngles = new Vector3(0, rotatey,0);
+        //Move
     }
 
 
-    void handleDetection ()
+    void Update()
     {
-        if (!Globals.isInitialized)
-        {
-            return;
-        }
-
-        float vx = 0.0f;
-        float vy = 0.0f;
-
-        if (Globals.newDataReceived)
-        {
-            string message = Globals.message;
-            string[] substrings = message.Split(',');
-            vx = float.Parse(substrings[0], CultureInfo.InvariantCulture);
-            vy = float.Parse(substrings[1], CultureInfo.InvariantCulture);
-            if (Mathf.Abs(vx) < thresold) vx = 0;
-            if (Mathf.Abs(vy) < thresold) vy = 0;
-
-            Globals.newDataReceived = false;
-        }
-        Vector3 movement = transform.right * speedHand * vx - transform.up * speedHand * vy + transform.forward * vz * Time.deltaTime;
-        controller.Move(movement);
-
+        moveWithHand();//  
+        //moveWithKeyboard(); //Uncomment this for move the gameobject using the keyboards
     }
 }
